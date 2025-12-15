@@ -55,62 +55,29 @@ app.get('/api/products/:id', (req, res) => {
 });
 
 // Admin login
+// login
 app.post('/api/admin/login', (req, res) => {
-  const { username, password } = req.body;
-  if(username === ADMIN_USERNAME && password === ADMIN_PASSWORD){
-    const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '12h' });
-    return res.json({ token });
-  }
-  res.status(401).json({ error: 'Invalid credentials' });
+  ...
 });
 
-// Middleware
-function auth(req, res, next){
-  const authHeader = req.headers.authorization || '';
-  const parts = authHeader.split(' ');
-  if(parts.length !== 2 || parts[0] !== 'Bearer') return res.status(401).json({error:'Unauthorized'});
-  const token = parts[1];
-  try {
-    const payload = jwt.verify(token, JWT_SECRET);
-    req.user = payload;
-    next();
-  } catch(e){
-    return res.status(401).json({error:'Invalid token'});
-  }
+// middleware
+function auth(req, res, next) {
+  ...
 }
 
-// Admin routes
-app.post('/api/admin/products', auth, (req, res) => {
-  const products = readProducts();
-  const nextId = products.reduce((a,b)=>Math.max(a,b.id), 0) + 1;
-  const newP = Object.assign({ id: nextId }, req.body);
-  products.push(newP);
-  writeProducts(products);
-  res.json(newP);
-});
+// admin routes
+app.post('/api/admin/products', auth, (req, res) => { ... });
+app.put('/api/admin/products/:id', auth, (req, res) => { ... });
+app.delete('/api/admin/products/:id', auth, (req, res) => { ... });
 
+// home test route
 app.get("/", (req, res) => {
   res.send("Master Fashion Backend is running 🚀");
 });
 
+// ✅ ALWAYS LAST
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, ()=>console.log('Server running on port', PORT));
-
-
-app.put('/api/admin/products/:id', auth, (req, res) => {
-  const id = Number(req.params.id);
-  const products = readProducts();
-  const idx = products.findIndex(x=>x.id===id);
-  if(idx===-1) return res.status(404).json({error:'Not found'});
-  products[idx] = Object.assign(products[idx], req.body);
-  writeProducts(products);
-  res.json(products[idx]);
+app.listen(PORT, () => {
+  console.log("Server running on port", PORT);
 });
-
-app.delete('/api/admin/products/:id', auth, (req, res) => {
-  const id = Number(req.params.id);
-  let products = readProducts();
-  products = products.filter(x=>x.id!==id);
-  writeProducts(products);
-  res.json({ success: true });
 
