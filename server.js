@@ -105,7 +105,12 @@ app.delete('/api/admin/products/:id', auth, (req, res) => {
   products = products.filter(x=>x.id!==id);
   writeProducts(products);
   res.json({ success: true });
+ 
+  app.get("/", (req, res) => {
+  res.send("Master Fashion Backend is running 🚀");
 });
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, ()=>console.log('Server running on port', PORT));
+
+
